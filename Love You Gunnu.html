@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>For You, My Love</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tone.js for gentle ambient romantic chimes (no external audio URLs) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <!-- Google Fonts: Cormorant Garamond (Editorial Romance), Great Vibes (Calligraphy), Plus Jakarta Sans (Clean UI) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Great+Vibes&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* Custom Theme Variables & Typography */
+        :root {
+            --velvet-dark: #090307;
+            --velvet-deep: #160711;
+            --rose-glow: #e11d48;
+            --rose-soft: #fda4af;
+            --gold-champagne: #f3d5a5;
+            --gold-rich: #d4af37;
+            --parchment: #fffbf7;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: radial-gradient(circle at 50% 25%, #2b0c1e 0%, #14050e 55%, #070205 100%);
+            color: #fff5f7;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        .font-serif-romance {
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        .font-script {
+            font-family: 'Great Vibes', cursive;
+        }
+
+        /* Ambient Particle Canvas */
+        #ambient-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Soft Atmospheric Radial Vignette & Aura */
+        .ambient-aura {
+            position: fixed;
+            width: 65vw;
+            height: 65vw;
+            max-width: 700px;
+            max-height: 700px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(225, 29, 72, 0.16) 0%, rgba(212, 175, 55, 0.05) 45%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 0;
+            animation: pulseAura 8s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulseAura {
+            0% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.7; }
+            100% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+        }
+
+        /* Interactive 3D Envelope Styling */
+        .envelope-stage {
+            perspective: 1200px;
+            transition: all 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .envelope-wrapper {
+            position: relative;
+            width: min(90vw, 370px);
+            height: min(60vw, 245px);
+            background: linear-gradient(145deg, #2d0d1e, #1a0611);
+            border-radius: 16px;
+            box-shadow: 
+                0 25px 60px -15px rgba(0, 0, 0, 0.85),
+                0 0 35px rgba(225, 29, 72, 0.25),
+                inset 0 0 0 1px rgba(243, 213, 165, 0.25);
+            cursor: pointer;
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.5s ease;
+            transform-style: preserve-3d;
+        }
+
+        .envelope-wrapper:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 
+                0 32px 70px -15px rgba(0, 0, 0, 0.9),
+                0 0 50px rgba(225, 29, 72, 0.4),
+                inset 0 0 0 1px rgba(243, 213, 165, 0.45);
+        }
+
+        /* Envelope Inner Pocket Flaps */
+        .envelope-pocket-left {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #381025 0%, #220816 100%);
+            clip-path: polygon(0 0, 52% 52%, 0 100%);
+            border-radius: 16px;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        .envelope-pocket-right {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(225deg, #350f23 0%, #1f0714 100%);
+            clip-path: polygon(100% 0, 48% 52%, 100% 100%);
+            border-radius: 16px;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        .envelope-pocket-bottom {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(0deg, #42122b 0%, #260918 100%);
+            clip-path: polygon(0 100%, 50% 46%, 100% 100%);
+            border-radius: 16px;
+            z-index: 4;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.4);
+            pointer-events: none;
+        }
+
+        /* Envelope Top Flap */
+        .envelope-flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 62%;
+            background: linear-gradient(180deg, #4e1533 0%, #2c0b1d 100%);
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+            transform-origin: top center;
+            transition: transform 0.85s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5;
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .envelope-wrapper.opened .envelope-flap {
+            transform: rotateX(180deg);
+            z-index: 1;
+        }
+
+        /* Wax Seal Heart Button */
+        .wax-seal {
+            position: absolute;
+            top: 52%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #ff4d79, #be123c 65%, #881337 100%);
+            box-shadow: 
+                0 8px 20px rgba(0, 0, 0, 0.6),
+                inset 0 2px 4px rgba(255, 255, 255, 0.4),
+                inset 0 -3px 6px rgba(0, 0, 0, 0.4),
+                0 0 0 4px rgba(243, 213, 165, 0.25);
+            z-index: 6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.5s ease;
+            animation: heartbeatSeal 2.4s infinite ease-in-out;
+        }
+
+        .envelope-wrapper.opened .wax-seal {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.4);
+            pointer-events: none;
+        }
+
+        @keyframes heartbeatSeal {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            14% { transform: translate(-50%, -50%) scale(1.1); }
+            28% { transform: translate(-50%, -50%) scale(1); }
+            42% { transform: translate(-50%, -50%) scale(1.08); }
+            70% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* Letter Sneak-Peek Card inside Envelope */
+        .letter-peek {
+            position: absolute;
+            left: 7%;
+            right: 7%;
+            bottom: 8%;
+            height: 82%;
+            background: var(--parchment);
+            border-radius: 12px;
+            z-index: 2;
+            transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.25s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 18px;
+        }
+
+        .envelope-wrapper.opened .letter-peek {
+            transform: translateY(-95px);
+        }
+
+        /* Main Love Letter Parchment Card */
+        .letter-container {
+            background: linear-gradient(165deg, rgba(34, 11, 24, 0.88) 0%, rgba(19, 6, 14, 0.94) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(243, 213, 165, 0.28);
+            box-shadow: 
+                0 30px 80px rgba(0, 0, 0, 0.85),
+                0 0 60px rgba(225, 29, 72, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: opacity 0.9s ease, transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* Gold Shimmer Text */
+        .text-gold-shimmer {
+            background: linear-gradient(90deg, #f3d5a5 0%, #fff3db 45%, #d4af37 70%, #f3d5a5 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmerGold 5s linear infinite;
+        }
+
+        @keyframes shimmerGold {
+            to { background-position: 200% center; }
+        }
+
+        /* 3D Flip Card for "Reasons I Love You" */
+        .flip-card-scene {
+            perspective: 1100px;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.75s cubic-bezier(0.34, 1.36, 0.64, 1);
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .flip-card-inner.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-face {
+            position: absolute;
+            inset: 0;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .flip-card-front {
+            background: linear-gradient(145deg, rgba(64, 18, 41, 0.7), rgba(29, 8, 19, 0.85));
+            border: 1px solid rgba(243, 213, 165, 0.25);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+        }
+
+        .flip-card-back {
+            background: linear-gradient(145deg, rgba(136, 19, 55, 0.85), rgba(49, 10, 28, 0.95));
+            border: 1px solid rgba(253, 164, 175, 0.45);
+            box-shadow: 0 12px 35px rgba(225, 29, 72, 0.25);
+            transform: rotateY(180deg);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0d0409;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(243, 213, 165, 0.25);
+            border-radius: 999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(243, 213, 165, 0.45);
+        }
+
+        /* Toast Notification */
+        .love-toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(28, 9, 19, 0.95);
+            border: 1px solid rgba(243, 213, 165, 0.4);
+            color: #fff5f7;
+            padding: 10px 22px;
+            border-radius: 999px;
+            font-size: 0.875rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6), 0 0 20px rgba(225, 29, 72, 0.3);
+            z-index: 100;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .love-toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="relative flex flex-col items-center justify-center min-h-screen selection:bg-rose-500/30 selection:text-rose-200">
+
+    <!-- Ambient Glow & Interactive Particle Canvas -->
+    <div class="ambient-aura"></div>
+    <canvas id="ambient-canvas"></canvas>
+
+    <!-- Top Floating Utility Controls -->
+    <header class="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-3 sm:px-8 sm:py-5 pointer-events-none">
+        <div class="pointer-events-auto flex items-center gap-2 bg-black/30 backdrop-blur-md border border-amber-200/15 px-3.5 py-1.5 rounded-full">
+            <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+            <span class="text-xs tracking-widest uppercase text-amber-200/80 font-medium">Forever & Always</span>
+        </div>
+
+        <div class="pointer-events-auto flex items-center gap-2 sm:gap-3">
+            <!-- Ambient Chime Toggle -->
+            <button id="audio-toggle-btn" aria-label="Toggle romantic chimes" class="flex items-center gap-1.5 bg-black/35 hover:bg-rose-950/50 active:scale-95 transition-all backdrop-blur-md border border-amber-200/20 text-amber-100/90 px-3.5 py-2 rounded-full text-xs sm:text-sm shadow-lg">
+                <svg id="icon-sound-off" class="w-4 h-4 text-amber-200/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                </svg>
+                <svg id="icon-sound-on" class="w-4 h-4 text-rose-400 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                </svg>
+                <span class="hidden sm:inline" id="audio-label">Soft Chimes</span>
+            </button>
+
+            <!-- Customize Letter Button -->
+            <button id="open-customize-btn" class="flex items-center gap-1.5 bg-black/35 hover:bg-rose-950/50 active:scale-95 transition-all backdrop-blur-md border border-amber-200/20 text-amber-100/90 px-3.5 py-2 rounded-full text-xs sm:text-sm shadow-lg">
+                <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+                <span>Personalize</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- STAGE 1: Interactive Sealed Envelope Intro -->
+    <main id="intro-stage" class="relative z-10 flex flex-col items-center justify-center px-4 text-center transition-all duration-700">
+        <p class="text-xs sm:text-sm uppercase tracking-[0.28em] text-amber-200/75 mb-3 font-medium">A Private Note For You</p>
+        <h1 class="font-script text-4xl sm:text-6xl text-gold-shimmer mb-8 drop-shadow-md">My Dearest Love</h1>
+
+        <!-- 3D Envelope -->
+        <div class="envelope-stage my-2">
+            <div id="envelope-btn" role="button" tabindex="0" aria-label="Open love letter envelope" class="envelope-wrapper mx-auto">
+                <!-- Back Inside -->
+                <div class="absolute inset-0 rounded-2xl bg-[#16050e]"></div>
+                
+                <!-- Letter Sneak Peek -->
+                <div class="letter-peek">
+                    <span class="font-script text-2xl text-rose-800">I Love You</span>
+                    <div class="w-12 h-0.5 bg-rose-300/60 mt-1 rounded-full"></div>
+                </div>
+
+                <!-- Envelope Flaps -->
+                <div class="envelope-pocket-left"></div>
+                <div class="envelope-pocket-right"></div>
+                <div class="envelope-pocket-bottom"></div>
+                <div class="envelope-flap"></div>
+
+                <!-- Glowing Heart Wax Seal -->
+                <div class="wax-seal">
+                    <svg class="w-8 h-8 text-amber-100 drop-shadow" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <p class="mt-8 text-sm sm:text-base text-rose-200/80 font-serif-romance italic tracking-wide animate-pulse">
+            Tap the wax seal to break it open...
+        </p>
+    </main>
+
+    <!-- STAGE 2: Full Digital Love Letter & Interactive Keepsake Experience -->
+    <section id="letter-stage" class="relative z-10 hidden opacity-0 translate-y-8 w-full max-w-2xl px-4 pt-20 pb-16 sm:pt-24 sm:pb-20 mx-auto">
+        
+        <!-- Main Romantic Letter Card -->
+        <article class="letter-container rounded-3xl p-6 sm:p-10 md:p-12 relative overflow-hidden">
+            <!-- Decorative Corner Flourishes -->
+            <div class="absolute top-4 left-4 w-8 h-8 border-t border-l border-amber-200/30 rounded-tl-xl pointer-events-none"></div>
+            <div class="absolute top-4 right-4 w-8 h-8 border-t border-r border-amber-200/30 rounded-tr-xl pointer-events-none"></div>
+            <div class="absolute bottom-4 left-4 w-8 h-8 border-b border-l border-amber-200/30 rounded-bl-xl pointer-events-none"></div>
+            <div class="absolute bottom-4 right-4 w-8 h-8 border-b border-r border-amber-200/30 rounded-br-xl pointer-events-none"></div>
+
+            <!-- Salutation Header -->
+            <div class="text-center mb-6 sm:mb-8">
+                <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-rose-500/15 border border-rose-400/30 mb-4 shadow-inner">
+                    <svg class="w-6 h-6 text-rose-400" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                </div>
+                <p class="text-xs uppercase tracking-[0.25em] text-amber-200/70 mb-1">To the girl who holds my heart</p>
+                <h2 id="display-recipient" class="font-script text-4xl sm:text-5xl md:text-6xl text-gold-shimmer py-1">My Beautiful Love,</h2>
+            </div>
+
+            <!-- Love Letter Body -->
+            <div id="display-message" class="font-serif-romance text-lg sm:text-xl md:text-[1.32rem] leading-relaxed text-rose-50/95 space-y-4 text-center sm:text-left">
+                <p>
+                    From the moment you walked into my life, every ordinary day turned into something extraordinary. You are the quiet calm in my busiest moments, the brightest laugh in my favorite memories, and the warmth I look forward to every single day.
+                </p>
+                <p>
+                    Loving you feels effortless—like coming home to a place where I am completely known and endlessly cherished. Thank you for your kindness, your radiant smile, and the magic you bring just by being yourself.
+                </p>
+                <p class="text-amber-200/95 italic font-semibold text-center pt-2">
+                    In every lifetime, in every universe, I would still choose you. I love you more than words could ever hold.
+                </p>
+            </div>
+
+            <!-- Signature -->
+            <div class="mt-8 pt-6 border-t border-amber-200/15 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="text-center sm:text-left">
+                    <p class="text-xs uppercase tracking-widest text-rose-300/70">Forever Yours,</p>
+                    <p id="display-sender" class="font-script text-3xl sm:text-4xl text-amber-200 mt-0.5">Yours Always</p>
+                </div>
+
+                <!-- Interactive Heart Burst Trigger -->
+                <button id="shower-love-btn" class="group relative inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-gradient-to-r from-rose-600 via-pink-600 to-rose-700 hover:from-rose-500 hover:to-pink-500 text-white font-medium text-sm shadow-lg shadow-rose-900/50 border border-rose-300/30 active:scale-95 transition-all">
+                    <svg class="w-5 h-5 text-amber-200 group-hover:scale-125 transition-transform" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    <span>Send a Kiss & Heart Burst</span>
+                </button>
+            </div>
+        </article>
+
+        <!-- Interactive "Reasons I Love You" 3D Card Flipper Carousel -->
+        <div class="mt-10 sm:mt-12">
+            <div class="text-center mb-5">
+                <span class="text-xs uppercase tracking-[0.25em] text-amber-200/70">Little Reminders</span>
+                <h3 class="font-serif-romance text-2xl sm:text-3xl text-rose-100 mt-1">Reasons I Adore You</h3>
+                <p class="text-xs text-rose-200/60 mt-1">Tap the card to flip & reveal</p>
+            </div>
+
+            <!-- 3D Card Container -->
+            <div class="flip-card-scene w-full max-w-md mx-auto h-56 sm:h-60">
+                <div id="reason-flip-card" class="flip-card-inner">
+                    <!-- Front of Card -->
+                    <div class="flip-card-face flip-card-front">
+                        <span id="reason-number" class="text-xs uppercase tracking-[0.25em] text-amber-300/80 mb-2">Reason #01</span>
+                        <div class="w-12 h-12 rounded-full bg-rose-500/20 border border-amber-200/30 flex items-center justify-center my-2">
+                            <svg class="w-6 h-6 text-amber-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                            </svg>
+                        </div>
+                        <p id="reason-prompt" class="font-serif-romance text-xl sm:text-2xl text-rose-50 mt-2">Tap to uncover this reason...</p>
+                    </div>
+
+                    <!-- Back of Card (Revealed Reason) -->
+                    <div class="flip-card-face flip-card-back">
+                        <svg class="w-6 h-6 text-amber-200/90 mb-3" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        </svg>
+                        <p id="reason-text" class="font-serif-romance text-xl sm:text-2xl leading-snug text-white italic">
+                            "The way your eyes light up when you talk about the things you love."
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Carousel Controls -->
+            <div class="flex items-center justify-center gap-4 mt-5">
+                <button id="prev-reason-btn" aria-label="Previous reason" class="p-3 rounded-full bg-black/40 hover:bg-rose-950/60 border border-amber-200/20 text-amber-100 active:scale-90 transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+
+                <div id="reason-dots" class="flex items-center gap-2"></div>
+
+                <button id="next-reason-btn" aria-label="Next reason" class="p-3 rounded-full bg-black/40 hover:bg-rose-950/60 border border-amber-200/20 text-amber-100 active:scale-90 transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Bottom Action Row: Seal Again or Share Link -->
+        <div class="mt-12 flex flex-wrap items-center justify-center gap-3 text-xs sm:text-sm">
+            <button id="reseal-btn" class="px-4 py-2.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/15 text-rose-200/80 transition-all">
+                Re-seal Envelope
+            </button>
+            <button id="copy-share-btn" class="px-5 py-2.5 rounded-full bg-amber-200/15 hover:bg-amber-200/25 border border-amber-200/30 text-amber-100 font-medium transition-all flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                </svg>
+                <span>Copy Keepsake Link</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- Personalize Modal (Edit Names & Custom Love Note) -->
+    <div id="customize-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/75 backdrop-blur-md">
+        <div class="w-full max-w-lg rounded-3xl bg-[#1a0712] border border-amber-200/30 p-6 sm:p-8 shadow-2xl relative animate-[fadeIn_0.25s_ease-out]">
+            <div class="flex items-center justify-between mb-5">
+                <h3 class="font-serif-romance text-2xl sm:text-3xl text-amber-100">Personalize Your Letter</h3>
+                <button id="close-customize-btn" class="p-2 rounded-full hover:bg-white/10 text-rose-200/70">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-amber-200/75 mb-1.5">Her Name / Nickname</label>
+                    <input id="input-recipient" type="text" maxlength="40" placeholder="e.g., My Beautiful Sarah," class="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-amber-200/20 text-rose-50 focus:outline-none focus:border-rose-400 text-sm">
+                </div>
+
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-amber-200/75 mb-1.5">Your Love Note</label>
+                    <textarea id="input-message" rows="4" maxlength="750" placeholder="Write your heart out..." class="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-amber-200/20 text-rose-50 focus:outline-none focus:border-rose-400 text-sm leading-relaxed"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-amber-200/75 mb-1.5">Signed By</label>
+                    <input id="input-sender" type="text" maxlength="40" placeholder="e.g., Forever Yours, Alex" class="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-amber-200/20 text-rose-50 focus:outline-none focus:border-rose-400 text-sm">
+                </div>
+            </div>
+
+            <div class="mt-6 flex items-center justify-end gap-3">
+                <button id="reset-default-btn" class="px-4 py-2.5 rounded-xl text-xs text-rose-200/70 hover:text-white transition-colors">
+                    Reset Default
+                </button>
+                <button id="save-customize-btn" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-medium text-sm shadow-lg transition-all">
+                    Save & Apply
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Toast Feedback -->
+    <div id="love-toast" class="love-toast">
+        <svg class="w-4 h-4 text-rose-400 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+        <span id="toast-message">Love sent!</span>
+    </div>
+
+    <script>
+        /**
+         * ROMANTIC DIGITAL LOVE LETTER & INTERACTIVE EXPERIENCE
+         * Handles:
+         * 1. Responsive Canvas Floating Glowing Hearts & Golden Stardust Particles + Click/Tap Bursts
+         * 2. Envelope Unsealing Animation & Stage Transition
+         * 3. Interactive "Reasons I Love You" 3D Card Flipper Carousel
+         * 4. Tone.js Gentle Synthesized Music Box Chimes (optional user toggle)
+         * 5. Custom Note Personalization & URL Hash Sharing
+         */
+
+        // --- 1. STATE & ROMANTIC DATA ---
+        const DEFAULT_LETTER = {
+            recipient: "My Beautiful Love,",
+            message: "From the moment you walked into my life, every ordinary day turned into something extraordinary. You are the quiet calm in my busiest moments, the brightest laugh in my favorite memories, and the warmth I look forward to every single day.\n\nLoving you feels effortless—like coming home to a place where I am completely known and endlessly cherished. Thank you for your kindness, your radiant smile, and the magic you bring just by being yourself.\n\nIn every lifetime, in every universe, I would still choose you. I love you more than words could ever hold.",
+            sender: "Yours Always"
+        };
+
+        const REASONS_I_LOVE_YOU = [
+            {
+                prompt: "The way you see the world...",
+                reason: "The way your eyes light up when you talk about the things you love—it makes the whole world feel brighter."
+            },
+            {
+                prompt: "Your effortless warmth...",
+                reason: "How safe, peaceful, and completely at home I feel whenever I'm right next to you."
+            },
+            {
+                prompt: "Your unforgettable laugh...",
+                reason: "Your laugh is my absolute favorite melody; it instantly melts away any stress from my day."
+            },
+            {
+                prompt: "Your gentle heart...",
+                reason: "The kindness and grace you show to everyone around you inspires me to be a better person every day."
+            },
+            {
+                prompt: "Every quiet moment...",
+                reason: "Even doing nothing at all with you feels like the best memory I've ever made."
+            },
+            {
+                prompt: "Simply being you...",
+                reason: "You don't ever have to try to be anything other than yourself—you are my favorite person in every way."
+            }
+        ];
+
+        let currentReasonIndex = 0;
+        let isCardFlipped = false;
+        let audioEnabled = false;
+        let synth = null;
+
+        // --- 2. AMBIENT PARTICLE & GLOWING HEART CANVAS ---
+        const canvas = document.getElementById('ambient-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let burstParticles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Draw a smooth vector heart on Canvas
+        function drawHeart(ctx, x, y, size, color, alpha, rotation = 0) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(rotation);
+            ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
+            ctx.fillStyle = color;
+            ctx.shadowBlur = size * 0.9;
+            ctx.shadowColor = color;
+
+            ctx.beginPath();
+            const topCurveHeight = size * 0.3;
+            ctx.moveTo(0, topCurveHeight);
+            // Left top curve
+            ctx.bezierCurveTo(0, 0, -size / 2, 0, -size / 2, topCurveHeight);
+            // Left bottom curve
+            ctx.bezierCurveTo(-size / 2, (size + topCurveHeight) / 2, 0, (size + topCurveHeight) / 1.4, 0, size);
+            // Right bottom curve
+            ctx.bezierCurveTo(0, (size + topCurveHeight) / 1.4, size / 2, (size + topCurveHeight) / 2, size / 2, topCurveHeight);
+            // Right top curve
+            ctx.bezierCurveTo(size / 2, 0, 0, 0, 0, topCurveHeight);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+        }
+
+        class AmbientParticle {
+            constructor(initial = false) {
+                this.reset(initial);
+            }
+
+            reset(initial = false) {
+                this.x = Math.random() * canvas.width;
+                this.y = initial ? Math.random() * canvas.height : canvas.height + 20;
+                this.isHeart = Math.random() > 0.45;
+                this.size = this.isHeart ? (Math.random() * 11 + 6) : (Math.random() * 2.5 + 1);
+                this.speedY = Math.random() * 0.55 + 0.2;
+                this.speedX = (Math.random() - 0.5) * 0.35;
+                this.wobble = Math.random() * Math.PI * 2;
+                this.wobbleSpeed = Math.random() * 0.02 + 0.008;
+                this.rotation = (Math.random() - 0.5) * 0.5;
+                this.alpha = Math.random() * 0.5 + 0.15;
+
+                const palette = ['#fb7185', '#f43f5e', '#f3d5a5', '#fda4af', '#e11d48'];
+                this.color = this.isHeart
+                    ? palette[Math.floor(Math.random() * palette.length)]
+                    : '#f3d5a5';
+            }
+
+            update() {
+                this.y -= this.speedY;
+                this.wobble += this.wobbleSpeed;
+                this.x += this.speedX + Math.sin(this.wobble) * 0.3;
+
+                if (this.y < -30) {
+                    this.reset(false);
+                }
+            }
+
+            draw() {
+                if (this.isHeart) {
+                    drawHeart(ctx, this.x, this.y, this.size, this.color, this.alpha, Math.sin(this.wobble) * 0.2);
+                } else {
+                    ctx.save();
+                    ctx.globalAlpha = this.alpha * (0.6 + 0.4 * Math.sin(this.wobble * 2));
+                    ctx.fillStyle = this.color;
+                    ctx.shadowBlur = 8;
+                    ctx.shadowColor = '#f3d5a5';
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+        }
+
+        class BurstHeart {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = Math.random() * 4.5 + 1.5;
+                this.vx = Math.cos(angle) * velocity;
+                this.vy = Math.sin(angle) * velocity - 1.5;
+                this.gravity = 0.06;
+                this.size = Math.random() * 14 + 8;
+                this.alpha = 1;
+                this.decay = Math.random() * 0.016 + 0.012;
+                this.rotation = (Math.random() - 0.5) * 0.8;
+                const colors = ['#ff4d79', '#fb7185', '#f3d5a5', '#fda4af', '#f43f5e'];
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += this.gravity;
+                this.vx *= 0.98;
+                this.alpha -= this.decay;
+            }
+
+            draw() {
+                if (this.alpha > 0) {
+                    drawHeart(ctx, this.x, this.y, this.size, this.color, this.alpha, this.rotation);
+                }
+            }
+        }
+
+        function spawnHeartBurst(x, y, count = 18) {
+            for (let i = 0; i < count; i++) {
+                burstParticles.push(new BurstHeart(x, y));
+            }
+        }
+
+        function initParticles() {
+            const count = window.innerWidth < 640 ? 28 : 48;
+            particles = Array.from({ length: count }, () => new AmbientParticle(true));
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (const p of particles) {
+                p.update();
+                p.draw();
+            }
+
+            for (let i = burstParticles.length - 1; i >= 0; i--) {
+                const bp = burstParticles[i];
+                bp.update();
+                bp.draw();
+                if (bp.alpha <= 0) {
+                    burstParticles.splice(i, 1);
+                }
+            }
+
+            requestAnimationFrame(animateParticles);
+        }
+
+        // Interactive tap/click anywhere spawns delicate heart sparkles
+        document.addEventListener('pointerdown', (e) => {
+            if (e.target.closest('button, input, textarea')) return;
+            spawnHeartBurst(e.clientX, e.clientY, 6);
+        });
+
+        // --- 3. GENTLE SYNTHESIZED ROMANTIC CHIMES (TONE.JS) ---
+        async function toggleAudio() {
+            try {
+                if (!audioEnabled) {
+                    await Tone.start();
+                    if (!synth) {
+                        const reverb = new Tone.Reverb({ decay: 4.5, wet: 0.55 }).toDestination();
+                        synth = new Tone.PolySynth(Tone.Synth, {
+                            oscillator: { type: 'sine' },
+                            envelope: { attack: 0.08, decay: 1.2, sustain: 0.2, release: 2.5 },
+                            volume: -14
+                        }).connect(reverb);
+                    }
+                    audioEnabled = true;
+                    document.getElementById('icon-sound-off').classList.add('hidden');
+                    document.getElementById('icon-sound-on').classList.remove('hidden');
+                    document.getElementById('audio-label').textContent = 'Chimes On';
+                    playRomanticArpeggio();
+                    showToast('Soft romantic chimes enabled');
+                } else {
+                    audioEnabled = false;
+                    document.getElementById('icon-sound-on').classList.add('hidden');
+                    document.getElementById('icon-sound-off').classList.remove('hidden');
+                    document.getElementById('audio-label').textContent = 'Soft Chimes';
+                    showToast('Chimes muted');
+                }
+            } catch (err) {
+                console.warn('Audio initialization skipped:', err);
+            }
+        }
+
+        function playRomanticArpeggio() {
+            if (!audioEnabled || !synth) return;
+            const now = Tone.now();
+            // Warm Fmaj9 romantic arpeggio
+            const notes = ['F4', 'A4', 'C5', 'E5', 'G5'];
+            notes.forEach((note, idx) => {
+                synth.triggerAttackRelease(note, '2n', now + idx * 0.16);
+            });
+        }
+
+        function playSoftChime() {
+            if (!audioEnabled || !synth) return;
+            const notes = ['C5', 'E5', 'G5', 'A5', 'D5'];
+            const pick = notes[Math.floor(Math.random() * notes.length)];
+            synth.triggerAttackRelease(pick, '4n');
+        }
+
+        // --- 4. ENVELOPE REVEAL & STAGE TRANSITIONS ---
+        const envelopeBtn = document.getElementById('envelope-btn');
+        const introStage = document.getElementById('intro-stage');
+        const letterStage = document.getElementById('letter-stage');
+
+        function openLoveLetter() {
+            if (envelopeBtn.classList.contains('opened')) return;
+            envelopeBtn.classList.add('opened');
+
+            const rect = envelopeBtn.getBoundingClientRect();
+            spawnHeartBurst(rect.left + rect.width / 2, rect.top + rect.height / 2, 32);
+            playRomanticArpeggio();
+
+            setTimeout(() => {
+                introStage.style.opacity = '0';
+                introStage.style.transform = 'translateY(-24px) scale(0.96)';
+
+                setTimeout(() => {
+                    introStage.classList.add('hidden');
+                    letterStage.classList.remove('hidden');
+                    // Trigger reflow for smooth transition
+                    void letterStage.offsetWidth;
+                    letterStage.style.opacity = '1';
+                    letterStage.style.transform = 'translateY(0)';
+                }, 550);
+            }, 850);
+        }
+
+        function resealEnvelope() {
+            letterStage.style.opacity = '0';
+            letterStage.style.transform = 'translateY(24px)';
+
+            setTimeout(() => {
+                letterStage.classList.add('hidden');
+                envelopeBtn.classList.remove('opened');
+                introStage.classList.remove('hidden');
+                void introStage.offsetWidth;
+                introStage.style.opacity = '1';
+                introStage.style.transform = 'translateY(0) scale(1)';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 500);
+        }
+
+        envelopeBtn.addEventListener('click', openLoveLetter);
+        envelopeBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openLoveLetter();
+            }
+        });
+        document.getElementById('reseal-btn').addEventListener('click', resealEnvelope);
+
+        // --- 5. "REASONS I LOVE YOU" 3D FLIPPER CAROUSEL ---
+        const reasonFlipCard = document.getElementById('reason-flip-card');
+        const reasonNumberEl = document.getElementById('reason-number');
+        const reasonPromptEl = document.getElementById('reason-prompt');
+        const reasonTextEl = document.getElementById('reason-text');
+        const reasonDotsEl = document.getElementById('reason-dots');
+
+        function renderReasonCard(index) {
+            const item = REASONS_I_LOVE_YOU[index];
+            reasonNumberEl.textContent = `Reason #${String(index + 1).padStart(2, '0')}`;
+            reasonPromptEl.textContent = item.prompt;
+            reasonTextEl.textContent = `"${item.reason}"`;
+
+            // Update dots
+            reasonDotsEl.innerHTML = '';
+            REASONS_I_LOVE_YOU.forEach((_, idx) => {
+                const dot = document.createElement('button');
+                dot.ariaLabel = `Go to reason ${idx + 1}`;
+                dot.className = `h-2 rounded-full transition-all duration-300 ${
+                    idx === index ? 'w-6 bg-rose-400' : 'w-2 bg-amber-200/25 hover:bg-amber-200/50'
+                }`;
+                dot.addEventListener('click', () => {
+                    isCardFlipped = false;
+                    reasonFlipCard.classList.remove('is-flipped');
+                    currentReasonIndex = idx;
+                    renderReasonCard(currentReasonIndex);
+                    playSoftChime();
+                });
+                reasonDotsEl.appendChild(dot);
+            });
+        }
+
+        reasonFlipCard.addEventListener('click', () => {
+            isCardFlipped = !isCardFlipped;
+            reasonFlipCard.classList.toggle('is-flipped', isCardFlipped);
+            playSoftChime();
+            if (isCardFlipped) {
+                const rect = reasonFlipCard.getBoundingClientRect();
+                spawnHeartBurst(rect.left + rect.width / 2, rect.top + rect.height / 2, 10);
+            }
+        });
+
+        document.getElementById('prev-reason-btn').addEventListener('click', () => {
+            isCardFlipped = false;
+            reasonFlipCard.classList.remove('is-flipped');
+            currentReasonIndex = (currentReasonIndex - 1 + REASONS_I_LOVE_YOU.length) % REASONS_I_LOVE_YOU.length;
+            renderReasonCard(currentReasonIndex);
+            playSoftChime();
+        });
+
+        document.getElementById('next-reason-btn').addEventListener('click', () => {
+            isCardFlipped = false;
+            reasonFlipCard.classList.remove('is-flipped');
+            currentReasonIndex = (currentReasonIndex + 1) % REASONS_I_LOVE_YOU.length;
+            renderReasonCard(currentReasonIndex);
+            playSoftChime();
+        });
+
+        // --- 6. HEART BURST SHOWER BUTTON ---
+        document.getElementById('shower-love-btn').addEventListener('click', (e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            spawnHeartBurst(rect.left + rect.width / 2, rect.top, 26);
+            setTimeout(() => {
+                spawnHeartBurst(window.innerWidth * 0.3, window.innerHeight * 0.4, 14);
+                spawnHeartBurst(window.innerWidth * 0.7, window.innerHeight * 0.4, 14);
+            }, 180);
+            playRomanticArpeggio();
+            showToast('Sent a thousand kisses & hearts!');
+        });
+
+        // --- 7. PERSONALIZATION & SHAREABLE URL STATE ---
+        const customizeModal = document.getElementById('customize-modal');
+        const inputRecipient = document.getElementById('input-recipient');
+        const inputMessage = document.getElementById('input-message');
+        const inputSender = document.getElementById('input-sender');
+
+        const displayRecipient = document.getElementById('display-recipient');
+        const displayMessage = document.getElementById('display-message');
+        const displaySender = document.getElementById('display-sender');
+
+        let letterState = { ...DEFAULT_LETTER };
+
+        function applyLetterState(state) {
+            displayRecipient.textContent = state.recipient || DEFAULT_LETTER.recipient;
+            displaySender.textContent = state.sender || DEFAULT_LETTER.sender;
+
+            // Safely render paragraphs
+            const rawText = (state.message || DEFAULT_LETTER.message).trim();
+            const paragraphs = rawText.split(/\n\s*\n/).filter(Boolean);
+            displayMessage.innerHTML = '';
+
+            paragraphs.forEach((pText, idx) => {
+                const p = document.createElement('p');
+                p.textContent = pText.trim();
+                if (idx === paragraphs.length - 1 && paragraphs.length > 1) {
+                    p.className = 'text-amber-200/95 italic font-semibold text-center pt-2';
+                }
+                displayMessage.appendChild(p);
+            });
+        }
+
+        function loadFromUrlHash() {
+            try {
+                if (window.location.hash && window.location.hash.startsWith('#love=')) {
+                    const encoded = window.location.hash.slice(6);
+                    const decodedJson = decodeURIComponent(escape(atob(encoded)));
+                    const parsed = JSON.parse(decodedJson);
+                    if (parsed && (parsed.recipient || parsed.message || parsed.sender)) {
+                        letterState = {
+                            recipient: parsed.recipient || DEFAULT_LETTER.recipient,
+                            message: parsed.message || DEFAULT_LETTER.message,
+                            sender: parsed.sender || DEFAULT_LETTER.sender
+                        };
+                    }
+                }
+            } catch (e) {
+                console.warn('Could not parse custom love note hash:', e);
+            }
+            applyLetterState(letterState);
+        }
+
+        function encodeToUrlHash(state) {
+            try {
+                const jsonStr = JSON.stringify(state);
+                const encoded = btoa(unescape(encodeURIComponent(jsonStr)));
+                window.history.replaceState(null, '', '#love=' + encoded);
+            } catch (e) {
+                console.warn('Could not encode URL hash:', e);
+            }
+        }
+
+        document.getElementById('open-customize-btn').addEventListener('click', () => {
+            inputRecipient.value = letterState.recipient;
+            inputMessage.value = letterState.message;
+            inputSender.value = letterState.sender;
+            customizeModal.classList.remove('hidden');
+            customizeModal.classList.add('flex');
+        });
+
+        function closeCustomizeModal() {
+            customizeModal.classList.add('hidden');
+            customizeModal.classList.remove('flex');
+        }
+
+        document.getElementById('close-customize-btn').addEventListener('click', closeCustomizeModal);
+        customizeModal.addEventListener('click', (e) => {
+            if (e.target === customizeModal) closeCustomizeModal();
+        });
+
+        document.getElementById('save-customize-btn').addEventListener('click', () => {
+            letterState = {
+                recipient: inputRecipient.value.trim() || DEFAULT_LETTER.recipient,
+                message: inputMessage.value.trim() || DEFAULT_LETTER.message,
+                sender: inputSender.value.trim() || DEFAULT_LETTER.sender
+            };
+            applyLetterState(letterState);
+            encodeToUrlHash(letterState);
+            closeCustomizeModal();
+            showToast('Your custom love letter is saved!');
+        });
+
+        document.getElementById('reset-default-btn').addEventListener('click', () => {
+            letterState = { ...DEFAULT_LETTER };
+            inputRecipient.value = letterState.recipient;
+            inputMessage.value = letterState.message;
+            inputSender.value = letterState.sender;
+            applyLetterState(letterState);
+            window.history.replaceState(null, '', window.location.pathname);
+            showToast('Restored classic love note');
+        });
+
+        // Copy Shareable Link using document.execCommand('copy') for universal iframe compatibility
+        document.getElementById('copy-share-btn').addEventListener('click', () => {
+            encodeToUrlHash(letterState);
+            const shareUrl = window.location.href;
+            const tempInput = document.createElement('input');
+            tempInput.value = shareUrl;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            tempInput.setSelectionRange(0, 99999);
+            try {
+                document.execCommand('copy');
+                showToast('Keepsake link copied to clipboard!');
+            } catch (err) {
+                showToast('Ready to share from your address bar!');
+            }
+            document.body.removeChild(tempInput);
+        });
+
+        // --- 8. TOAST FEEDBACK HELPER ---
+        let toastTimeout = null;
+        function showToast(msg) {
+            const toast = document.getElementById('love-toast');
+            const toastMsg = document.getElementById('toast-message');
+            toastMsg.textContent = msg;
+            toast.classList.add('show');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2800);
+        }
+
+        // --- 9. INITIALIZE ON LOAD ---
+        window.onload = function () {
+            document.getElementById('audio-toggle-btn').addEventListener('click', toggleAudio);
+            loadFromUrlHash();
+            renderReasonCard(0);
+            initParticles();
+            animateParticles();
+        };
+    </script>
+</body>
+</html>
